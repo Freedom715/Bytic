@@ -39,8 +39,6 @@ class Main:
         self.enemies = []
         self.mouse_pos = (0, 0)
         self.game_running, self.menu_running = False, True
-        for j in range(5):
-            self.enemies.append([Enemy(50 * i + 50 + 50 * (j % 2), j * 50 + 25, self) for i in range(0, 11, 2)])
         self.menu_cycle()
 
     def terminate(self):
@@ -52,12 +50,16 @@ class Main:
         sys.exit()
 
     def menu_cycle(self, menu=True):
+        self.menu_running = True
+        self.game_running = False
         while self.running and self.menu_running:
             self.screen.blit(self.menu_fon, (0, 0))
             if menu:
-                self.buttons.add(Button(200, 300, self, "Buttons/start_black.png", "Buttons/start_red.png", self.game_cycle))
+                self.buttons.remove(self.buttons.sprites())
+                Button(200, 300, self, "Buttons/start_black.png", "Buttons/start_red.png", self.game_cycle)
             else:
-                pass
+                self.buttons.remove(self.buttons.sprites())
+                Button(200, 300, self, "Buttons/restart_black.png", "Buttons/restart_red.png", self.game_cycle)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.terminate()
@@ -111,6 +113,7 @@ class Main:
             self.clock.tick(FPS)
 
 
+
 class Hero(pygame.sprite.Sprite):
     def __init__(self, x, y, main):
         super().__init__(main.player_sprite, main.all_sprites)
@@ -154,11 +157,11 @@ class Enemy(pygame.sprite.Sprite):
                 self.y += 25
                 self.direction *= -1
                 if self.y + 75 >= 600:
-                    self.main.game_over()
+                    self.main.menu_cycle(menu=False)
             self.x += 25 * self.direction
             self.upd_rect()
             self.counter = 0
-        self.counter += 4
+        self.counter += 10
 
 
 class Bullet(pygame.sprite.Sprite):
