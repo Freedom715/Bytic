@@ -46,12 +46,11 @@ class Main:
         self.enemies = []
         self.enemies_counter = 0
         self.mouse_pos = (0, 0)
+        self.menu_cycle()
 
     def menu_cycle(self, menu=True):
         self.menu_running = True
         self.game_running = False
-        for j in range(1):
-            self.enemies.append([Enemy(i * 50, j * 50 + 25, self) for i in range(0, 11, 2)])
         while self.running and self.menu_running:
             self.screen.blit(self.menu_fon, (0, 0))
             if menu:
@@ -76,6 +75,9 @@ class Main:
         counter = 0
         self.menu_running = False
         self.game_running = True
+        self.enemy_group.remove(self.enemy_group.sprites())
+        for j in range(self.row):
+            self.enemies.append([Enemy(50 * i + 50 + 50 * (j % 2), j * 50 + 25, self) for i in range(0, self.col, 2)])
         while self.running and self.game_running:
             self.screen.blit(self.game_fon, (0, 0))
             self.all_sprites.draw(self.screen)
