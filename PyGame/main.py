@@ -23,46 +23,44 @@ def load_image(name, colorkey=None):
     return image
 
 
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
 class Main:
     def __init__(self):
         self.size = self.WIDTH, self.HEIGHT = 850, 700
         self.screen = pygame.display.set_mode(self.size)
         self.clock = pygame.time.Clock()
-        self.cell_size, self.player_size_x, self.player_size_y = 50, 50, 50
         self.game_fon = pygame.transform.scale(pygame.image.load('game_fon.png').convert(), (self.WIDTH, self.HEIGHT))
         self.menu_fon = pygame.transform.scale(pygame.image.load('menu_fon.jpg').convert(), (self.WIDTH, self.HEIGHT))
-        self.running = True
         self.all_sprites = pygame.sprite.Group()
         self.enemy_group, self.player_sprite = pygame.sprite.Group(), pygame.sprite.Group()
         self.bullets, self.buttons = pygame.sprite.Group(), pygame.sprite.Group()
+        self.cell_size, self.player_size_x, self.player_size_y = 50, 50, 50
+        self.row, self.col = 1, 11
         self.player = Hero((self.WIDTH // 2) - 50, 11 * self.cell_size, self)
+        self.running = True
+        self.game_running, self.menu_running = None, None
         self.enemies = []
+        self.enemies_counter = 0
         self.mouse_pos = (0, 0)
-        self.game_running, self.menu_running = False, True
-        self.menu_cycle()
-
-    def terminate(self):
-        """
-        Close the game window
-        :return: None
-        """
-        pygame.quit()
-        sys.exit()
 
     def menu_cycle(self, menu=True):
         self.menu_running = True
         self.game_running = False
+        for j in range(1):
+            self.enemies.append([Enemy(i * 50, j * 50 + 25, self) for i in range(0, 11, 2)])
         while self.running and self.menu_running:
             self.screen.blit(self.menu_fon, (0, 0))
             if menu:
-                self.buttons.remove(self.buttons.sprites())
+                for button in self.buttons.sprites():
+                    self.buttons.remove(button)
                 Button(200, 300, self, "Buttons/start_black.png", "Buttons/start_red.png", self.game_cycle)
-            else:
-                self.buttons.remove(self.buttons.sprites())
-                Button(200, 300, self, "Buttons/restart_black.png", "Buttons/restart_red.png", self.game_cycle)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.terminate()
+                    terminate()
                 elif event.type == pygame.MOUSEMOTION:
                     self.mouse_pos = event.pos
                 elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -84,9 +82,9 @@ class Main:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.terminate()
+                    terminate()
 
-            for indx in range(4, -1, -1):
+            for indx in range(self.row - 1, -1, -1):
                 if self.enemies[indx][0].check_collision() or self.enemies[indx][-1].check_collision():
                     for elem in self.enemies[indx]:
                         elem.check_collision()
@@ -108,10 +106,11 @@ class Main:
                 if counter >= FPS:
                     self.bullets.add(Bullet(self.player.x + 35, self.player.y, self))
                     counter = 0
+            if self.enemies_counter == 0:
+                self.__init__()
             counter += 2
             pygame.display.flip()
             self.clock.tick(FPS)
-
 
 
 class Hero(pygame.sprite.Sprite):
@@ -125,7 +124,7 @@ class Hero(pygame.sprite.Sprite):
     def move(self, direction):
         if 0 <= self.x + direction * 25 <= self.main.WIDTH - 100:
             self.x += direction * 25
-            self.rect = self.x, self.y
+            self.rect.x, self.rect.y = self.x, self.y
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -133,6 +132,7 @@ class Enemy(pygame.sprite.Sprite):
         super().__init__(main.enemy_group, main.all_sprites)
         self.x, self.y = x, y
         self.main = main
+        self.main.enemies_counter += 1
         self.image = pygame.transform.scale(load_image('enemy.jpg', -1), (50, 50))
         rct = pygame.Rect(x, y, 50, 50)
         self.rect = rct
@@ -157,11 +157,11 @@ class Enemy(pygame.sprite.Sprite):
                 self.y += 25
                 self.direction *= -1
                 if self.y + 75 >= 600:
-                    self.main.menu_cycle(menu=False)
+                    self.main.__init__()
             self.x += 25 * self.direction
             self.upd_rect()
             self.counter = 0
-        self.counter += 10
+        self.counter += 5
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -187,6 +187,7 @@ class Bullet(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, self.main.enemy_group):
             pygame.sprite.spritecollide(self, self.main.enemy_group, True)
             self.kill()
+            self.main.enemies_counter -= 1
         self.counter += 15
 
 
@@ -216,9 +217,8 @@ class Button(pygame.sprite.Sprite):
 
     def check_click(self, pos):
         if self.rect.collidepoint(pos):
-            if self.clicked_func:
-                if self.clicked_func():
-                    return True
+            if self.clicked_func():
+                return True
 
 
 FPS = 60
