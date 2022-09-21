@@ -39,7 +39,7 @@ class Main:
         self.enemy_group, self.player_sprite = pygame.sprite.Group(), pygame.sprite.Group()
         self.bullets, self.buttons = pygame.sprite.Group(), pygame.sprite.Group()
         self.cell_size, self.player_size_x, self.player_size_y = 50, 50, 50
-        self.row, self.col = 1, 11
+        self.row, self.col = 3, 11
         self.player = Hero((self.WIDTH // 2) - 50, 11 * self.cell_size, self)
         self.running = True
         self.game_running, self.menu_running = None, None
