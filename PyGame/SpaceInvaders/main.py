@@ -1,8 +1,4 @@
-import os
 import sys
-from itertools import product
-from random import randint
-
 import pygame
 
 
