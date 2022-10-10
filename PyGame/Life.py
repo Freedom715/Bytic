@@ -9,6 +9,9 @@ class Board:
         self.cell_size = 15
         self.board = [[0] * self.width for _ in range(self.height)]
 
+    def on_click(self, cell):
+        self.board[cell[0]][cell[1]] = (self.board[cell[0]][cell[1]] + 1) % 2
+
     def drawing(self):
         for y in range(self.height):
             for x in range(self.width):
@@ -19,9 +22,6 @@ class Board:
                     pygame.draw.rect(screen, pygame.Color("green"),
                                      (x * self.cell_size + self.left_border, y * self.cell_size + self.top_border,
                                       self.cell_size, self.cell_size))
-
-    def on_click(self, cell):
-        self.board[cell[0]][cell[1]] = (self.board[cell[0]][cell[1]] + 1) % 2
 
     def get_cell(self, mouse_pos):
         cell_x = (mouse_pos[0] - self.left_border) // self.cell_size
@@ -66,17 +66,17 @@ class Board:
                     self.board[x][y] = 0
 
 
-cells_x = 65
-cells_y = 65
+cells_size = 50
 fps = 15
-board = Board(cells_x, cells_y)
-size = cells_x * board.cell_size + board.left_border * 2, \
-       cells_y * board.cell_size + board.top_border * 2
+board = Board(cells_size, cells_size)
+size = cells_size * board.cell_size + board.left_border * 2, \
+       cells_size * board.cell_size + board.top_border * 2
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 
 running = True
 game_started = False
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -91,7 +91,6 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 game_started = not game_started
-
     if game_started:
         clock.tick(fps)
         board.next_move()
