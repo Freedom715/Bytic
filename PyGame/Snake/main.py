@@ -7,8 +7,9 @@ pygame.init()
 SIZE = WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
-snake_block = 25
+snake_block = 35
 snake_speed = 10
+fon_image = pygame.transform.scale(pygame.image.load('fon.jpg').convert(), SIZE)
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
 
@@ -55,8 +56,8 @@ def game_close():
 
 def game_loop():
     game_over = False
-    x1, x1_change = WIDTH // 2, 0
-    y1, y1_change = HEIGHT // 2, 0
+    x1, x1_change = WIDTH // 2 // snake_block * snake_block, 0
+    y1, y1_change = HEIGHT // 2 // snake_block * snake_block, 0
     snake_list = []
     snake_len = 1
     food_x = random.randint(0, (WIDTH - snake_block) // snake_block) * snake_block
@@ -79,17 +80,17 @@ def game_loop():
                 elif event.key == pygame.K_LEFT:
                     x1_change, y1_change = -snake_block, 0
                     direction = 3
-        if x1 + snake_block > WIDTH:
-            x1 = -snake_block
-        elif x1 < 0:
-            x1 = WIDTH
-        if y1 + snake_block > HEIGHT:
-            y1 = -snake_block
-        elif y1 < 0:
-            y1 = HEIGHT
         x1 += x1_change
         y1 += y1_change
-        screen.fill((0, 0, 255))
+        if x1 >= WIDTH:
+            x1 = 0
+        elif x1 < 0:
+            x1 = WIDTH
+        if y1 >= HEIGHT:
+            y1 = 0
+        elif y1 < 0:
+            y1 = HEIGHT
+        screen.blit(fon_image, (0, 0))
         score(snake_len - 1)
         pygame.draw.rect(screen, (0, 255, 0), [food_x, food_y, snake_block, snake_block])
         snake_list.append(SnakeBody(x1, y1))
