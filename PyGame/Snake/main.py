@@ -8,7 +8,7 @@ SIZE = WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode(SIZE)
 clock = pygame.time.Clock()
 CELL_SIZE = 25
-snake_speed = 10
+snake_speed = 15
 fon_image = pygame.transform.scale(pygame.image.load('fon.jpg').convert(), SIZE)
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
@@ -20,21 +20,18 @@ class SnakeBody:
         self.y = y
         self.head = True
         self.color = (0, 100, 0)
+        self.image = pygame.transform.scale(pygame.image.load('head0.png').convert(), (CELL_SIZE, CELL_SIZE))
 
     def move(self):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, CELL_SIZE, CELL_SIZE))
-        # screen.blit(self.image, (self.x, self.y))
-        # self.image = pygame.transform.scale(pygame.image.load('head0.png').convert(), (CELL_SIZE, CELL_SIZE))
+        screen.blit(self.image, (self.x, self.y))
 
     def check_direction(self, direction):
         if self.head:
-            pygame.draw.rect(screen, (255, 0, 0), (self.x, self.y, CELL_SIZE, CELL_SIZE))
-            # self.image = pygame.transform.scale(pygame.image.load(f'head{direction}.png').convert(), (CELL_SIZE,
-            # CELL_SIZE))
+            self.image = pygame.transform.scale(pygame.image.load(f'head{direction}.png').convert(),
+                                                (CELL_SIZE, CELL_SIZE))
         else:
-            pygame.draw.rect(screen, (0, 220, 0), (self.x, self.y, CELL_SIZE, CELL_SIZE))
-            # self.image = pygame.transform.scale(pygame.image.load(f'body{direction}.png').convert(), (CELL_SIZE,
-            # CELL_SIZE))
+            self.image = pygame.transform.scale(pygame.image.load(f'body{direction}.png').convert(),
+                                                (CELL_SIZE, CELL_SIZE))
 
 
 def score(numb):
@@ -44,7 +41,7 @@ def score(numb):
 
 def game_close():
     while True:
-        screen.fill((0, 150, 0))
+        screen.blit(fon_image, (0, 0))
         screen.blit(font_style.render("Вы проиграли", True, (255, 255, 255)), [WIDTH // 3, HEIGHT // 3])
         pygame.display.update()
         for event in pygame.event.get():
@@ -54,7 +51,7 @@ def game_close():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     return
-                if event.key == pygame.K_c:
+                if event.key == pygame.K_r:
                     game_loop()
 
 
@@ -72,16 +69,16 @@ def game_loop():
             if event.type == pygame.QUIT:
                 game_over = True
             if event.type == pygame.KEYDOWN and x1 % CELL_SIZE == 0:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_UP and direction != 2:
                     x1_change, y1_change = 0, -CELL_SIZE
                     direction = 0
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_RIGHT and direction != 3:
                     x1_change, y1_change = CELL_SIZE, 0
                     direction = 1
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN and direction != 0:
                     x1_change, y1_change = 0, CELL_SIZE
                     direction = 2
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pygame.K_LEFT and direction != 1:
                     x1_change, y1_change = -CELL_SIZE, 0
                     direction = 3
         x1 += x1_change
@@ -94,8 +91,7 @@ def game_loop():
             y1 = 0
         elif y1 < 0:
             y1 = HEIGHT
-        # screen.blit(fon_image, (0, 0))
-        screen.fill((0, 150, 0))
+        screen.blit(fon_image, (0, 0))
         score(snake_len - 1)
         pygame.draw.rect(screen, (190, 0, 0), [food_x, food_y, CELL_SIZE, CELL_SIZE])
         snake_list.append(SnakeBody(x1, y1))
@@ -103,11 +99,11 @@ def game_loop():
             del snake_list[0]
         for x in snake_list[:-1]:
             x.head = False
-            x.color = (0, 200, 0)
             if (x.x, x.y) == (snake_list[-1].x, snake_list[-1].y):
                 game_close()
         snake_list[-1].check_direction(direction)
-        if len(snake_list) > 1:
+        if snake_len > 1:
+            snake_list[-2].head = False
             snake_list[-2].check_direction(direction)
         for elem in snake_list:
             elem.move()
