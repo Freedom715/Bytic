@@ -6,7 +6,7 @@ class Board:
     def __init__(self, width, height):
         self.width, self.height = width, height
         self.left_border, self.top_border = 10, 10
-        self.cell_size = 15
+        self.cell_size = 100
         self.board = [[0] * self.width for _ in range(self.height)]
 
     def on_click(self, cell):
@@ -15,7 +15,7 @@ class Board:
     def drawing(self):
         for y in range(self.height):
             for x in range(self.width):
-                pygame.draw.rect(screen, (25, 25, 25),
+                pygame.draw.rect(screen, (75, 75, 75),
                                  (x * self.cell_size + self.left_border, y * self.cell_size + self.top_border,
                                   self.cell_size, self.cell_size), 1)
                 if self.board[x][y] == 1:
@@ -66,7 +66,7 @@ class Board:
                     self.board[x][y] = 0
 
 
-cells_size = 50
+cells_size = 10
 fps = 15
 board = Board(cells_size, cells_size)
 size = cells_size * board.cell_size + board.left_border * 2, \
